@@ -1,8 +1,44 @@
 {
-  "Brightpearl": {
+  "brightpearl": {
     "datacentre": "eu1",
-    "accountId": "outerheaven",
-    "private-app-ref": "outerheaven_importer",
-    "private-account-token": "??????"
+    "accountId": "?????",
+    "private-app-ref": "????",
+    "private-account-token": "????"
+  },
+  "columns": {
+    "Code": null,
+    "Email address": "contact.communication.emails.PRI.email",
+    "Company": "contact.organisation.name",
+    "First name": "contact.firstName",
+    "Last name": "contact.lastName",
+    "Telephone": "contact.communication.telephones.PRI",
+    "Telephone 2": "contact.communication.telephones.SEC",
+    "Salutation": "contact.salutation",
+    "Mobile": "contact.communication.telephones.TER",
+    "Fax": null,
+    "Bank account": null,
+    "Bank sort": null,
+    "Bank name": null,
+    "Swift code": null,
+    "IBAN": null,
+    "Street": "address.addressLine1",
+    "Suburb": "address.addressLine2",
+    "City": "address.addressLine3",
+    "State": "address.addressLine4",
+    "Postcode": "address.postalCode",
+    "Country": "address.countryIsoCode",
+    "Title": null,
+    "Status": null,
+    "Memo": null,
+    "Note text": null,
+    "Note date": null,
+    "Website": "contact.communication.websites.PRI",
+    "Owner": null,
+    "Email 2": "contact.communication.emails.SEC.email",
+    "Newsletter": "contact.marketingDetails.isReceiveEmailNewsletter",
+    "Nominal code": null,
+    "Tax code": "contact.financialDetails.taxCodeId",
+    "Credit limit": "contact.financialDetails.creditLimit",
+    "Credit days": "contact.financialDetails.creditTermDays"
   }
 }

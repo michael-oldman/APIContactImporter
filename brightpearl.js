@@ -5,7 +5,7 @@ var delay = 0;
 
 module.exports = function(datacentre, accountId, appRef, token) {
 
-    var call = function (method, path, body, callback) {
+    var call = function (method, path, postData, callback) {
 
         setTimeout(function() {
 
@@ -16,12 +16,17 @@ module.exports = function(datacentre, accountId, appRef, token) {
                 method: method,
                 headers: {
                     'brightpearl-app-ref': appRef,
-                    'brightpearl-account-token': token
-                }
+                    'brightpearl-account-token': token,
+                    'content-type': 'application/json'
+                },
+                body: postData,
+                json: true
             };
 
+            console.log("Sending: " + options.method + " " + options.uri);
+            if (postData) console.log(JSON.stringify(postData));
+
             request(options, function (error, response, body) {
-                //console.log(options.uri);
 
                 if (error) {
                     return callback(Error(error));
@@ -33,13 +38,19 @@ module.exports = function(datacentre, accountId, appRef, token) {
                         //console.log('Next throttling period in ' + (nextPeriod / 1000) + 's');
                     }
                     delay = nextPeriod;
-                    call(method, path, body, callback);
+                    call(method, path, postData, callback);
                     return;
                 }
 
                 delay = 0;
 
-                return callback(null, response.statusCode, JSON.parse(body).response);
+                //console.log(body);
+
+                if (response.statusCode >= 400) {
+                    return callback(body.errors, response.statusCode, null);
+                } else {
+                    return callback(null, response.statusCode, body.response);
+                }
             });
         }, delay);
     };
