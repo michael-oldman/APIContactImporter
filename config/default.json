@@ -1,12 +1,12 @@
 {
   "brightpearl": {
-    "datacentre": "eu1",
-    "accountId": "?????",
-    "private-app-ref": "????",
-    "private-account-token": "????"
+    "datacentre": "???",
+    "accountId": "???",
+    "private-app-ref": "???",
+    "private-account-token": "???"
   },
   "columns": {
-    "Code": null,
+    "Code": "contact.assignment.current.accountCode",
     "Email address": "contact.communication.emails.PRI.email",
     "Company": "contact.organisation.name",
     "First name": "contact.firstName",
