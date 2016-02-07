@@ -23,12 +23,16 @@ var accountId = config.get('brightpearl.accountId');
 var appRef = config.get('brightpearl.private-app-ref');
 var token = config.get('brightpearl.private-account-token');
 
-var Brightpearl = require('./lib/brightpearl')(datacentre, accountId, appRef, token);
+var brightpearl = require('./lib/brightpearl')(datacentre, accountId, appRef, token);
+var multimessage = require('./lib/multimessage')(brightpearl);
 var store = dataStore('store');
 
 var count = 0;
+var complete = 0;
+var filesOpen = 0;
 
-Brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, statusCode, taxCodes){
+brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, statusCode, taxCodes){
+
     if (err) {
         console.error('Unable to fetch tax codes, check connection config');
         process.exit(1);
@@ -47,15 +51,22 @@ Brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
         console.log('Processing: ' + file);
 
         var rs = fs.createReadStream('spreadsheets\\' + file);
+        filesOpen++;
 
         var csvConverter = new Converter({
             constructResult: false,
             ignoreEmpty: true
         });
 
-        var q = async.queue(function(row, callback){
-            processRow(row, callback)
-        });
+        var q = async.queue(function(row, done){
+            processRow(row, function(success){
+                complete++;
+                if (filesOpen == 0 && count == complete) {
+                    multimessage.close();
+                }
+                done();
+            });
+        }, 10);
 
         q.saturated = function() {
             rs.pause();
@@ -70,6 +81,10 @@ Brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
         };
 
         rs.pipe(csvConverter);
+
+        rs.on('end', function(){
+            filesOpen--;
+        });
     });
 
     function processRow(row, callback) {
@@ -86,7 +101,7 @@ Brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
 
         if (!valid) {
             console.error(log);
-            return callback();
+            return callback(false);
         }
 
         var resources  = {
@@ -105,13 +120,13 @@ Brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
         if (contactRef == null || contactRef.length == 0) {
             log += " contact code required";
             console.error(log);
-            return callback();
+            return callback(true);
         }
 
         if (!push) {
             log += "\n" + JSON.stringify(nullPrune(resources));
             console.log(log);
-            return callback();
+            return callback(true);
         }
 
         var importedId = store.get(contactRef);
@@ -119,16 +134,16 @@ Brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
         if (importedId != null) {
             log += " " + contactRef + " already imported with ID " + importedId;
             console.log(log);
-            return callback();
+            return callback(true);
         }
 
         log += " importing " + contactRef + " ";
 
-        Brightpearl.call('POST', '/contact-service/postal-address/', nullPrune(resources.address), function(err, statusCode, id) {
+        multimessage.call('POST', '/contact-service/postal-address/', nullPrune(resources.address), function(err, statusCode, id) {
             if (err) {
                 log += "Address error: " + JSON.stringify(err);
                 console.error(log);
-                return callback();
+                return callback(false);
             }
             log += "Address ID: " + id + " ";
 
@@ -140,11 +155,11 @@ Brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
 
             resources.contact = nullPrune(resources.contact);
 
-            Brightpearl.call('POST', '/contact-service/contact/', nullPrune(resources.contact), function(err, statusCode, id) {
+            multimessage.call('POST', '/contact-service/contact/', nullPrune(resources.contact), function(err, statusCode, id) {
                 if (err) {
                     log += "Contact error: " + JSON.stringify(err);
                     console.error(log);
-                    return callback();
+                    return callback(false);
                 }
 
                 store.set(contactRef, id);
@@ -152,7 +167,7 @@ Brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
 
                 log += "Contact ID: " + id;
                 console.log(log);
-                callback();
+                callback(true);
             });
         });
     }
