@@ -1,4 +1,4 @@
-# BrightpearlContactImporter
+# APIContactImporter
 
 CSV bulk contact importer for inserting CRM records into a Brightpearl account. Capable of uploading ~1000 contacts 
 per minute.
