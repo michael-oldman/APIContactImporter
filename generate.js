@@ -16,28 +16,31 @@ var firstNames = ["Dave", "Fred", "Jenny", "Uma", "Primrose", "Eve", "Ruby",
     "Mike", "James", "Andy", "Gary", "Steve", "Mary", "Annette", "Pippa",
     "Cara", "Sarah",  "Eva", "Danielle", "Justin", "Kieran", "Liam",
     "Patrick", "Shane", "William", "Patty", "Siaban", "Natalie", "Suzy",
-    "Justine"];
+    "Justine", "Charles", "Emily"];
 var lastNames = ["Smith", "Jones", "Brown", "Davis", "Green", "Church", "Hastings",
     "Holding", "Lloyd", "Peters", "Jenkins", "Parkinson", "Mustard", "Wells",
     "Adams", "O'Shae", "Carrick", "Holmes", "Rogers", "Nelson", "Johnson", "Dixon",
-    "Grant", "Mitchell", "Kingston", "Thomas", "Press", "Tanner", "Todd", "Cross"];
+    "Grant", "Mitchell", "Kingston", "Thomas", "Press", "Tanner", "Todd", "Cross",
+    "Perry", "Parsons", "Partridge", "Quinnell", "Berry"];
 var organisations = [" Ltd", " Corp", " & Sons", " Supplies", " Inc", "GmbH",
     "'s Pizzas", "'s Wheels", " Stuff", " n Ting", " Garden Centre", " Booze", "",
-    " Tools", " Books", " Fashion", " Wholesale", " Retail", " Exchange"];
+    " Tools", " Books", " Fashion", " Wholesale", " Retail", " Exchange", " PLC"];
 var placeNames = ["New", "Good", "Queen", "Camel", "Square", "Green", "Happy",
     "North", "South", "East", "West", "River", "High", "Squire", "Meadow",
     "Hot", "Chip", "Wim", "Bourne", "Forest", "Tree", "Lower", "Victory",
-    "Round", "Brick"];
-var streets = [" St", " Street", " Road", " Rd", " Drive", " Lane"];
+    "Round", "Brick", "Windy"];
+var streets = [" St", " Street", " Road", " Rd", " Drive", " Lane", " Close"];
 var suburbs = ["ton", "ville", " Market", "cliffe", " Forest", "don", "mouth",
-    "mead", " Park", "ham"];
-var cities = [" Town", " City"];
+    "mead", " Park", "ham", "bottom", "top", " Cove", " End", " North", " South",
+    " East", " West"];
+var cities = [" Town", " City", " Village", "ing", "ville", "ton", "don"];
 var states = ["shire"];
 var countries = ["USA", "NZL", "PRT", "SAU", "MEX", "DEU"];
+var taxCodes = ["T0", "T20", "T4", "T5", "T9"];
 
 console.log('Code,Email address,Company,First name,Last name,Telephone,Telephone 2,Salutation,Mobile,Fax,Bank account,Bank sort,Bank name,Swift code,IBAN,Street,Suburb,City,State,Postcode,Country,Title,Status,Memo,Note text,Note date,Website,Owner,Email 2,Newsletter,Nominal code,Tax code,Credit limit,Credit days');
 
-_.each(_.range(min, max), function(n){
+_.each(_.range(min, max + 1), (n) => {
 
     var choose = _.sample;
 
@@ -59,34 +62,45 @@ _.each(_.range(min, max), function(n){
     var postcode = city.substr(0, 2).toUpperCase() + _.random(1111, 9999);
     var country = choose(countries);
 
+    var taxCode = choose(taxCodes);
+
     var row = [];
-    _.times(34, function(){
-        row.push("");
-    });
+    _.times(34, () => row.push(""));
 
-    // Code,Email address,Company,First name,Last name,
-    // Telephone,Telephone 2,Salutation,Mobile,Fax,
-    // Bank account,Bank sort,Bank name,Swift code,
-    // IBAN,Street,Suburb,City,State,Postcode,Country,
-    // Title,Status,Memo,Note text,Note date,Website,
-    // Owner,Email 2,Newsletter,Nominal code,Tax code,Credit limit,Credit days
-
-    row[0] = code;
-    row[1] = email;
-    row[2] = company;
-    row[3] = firstName;
-    row[4] = lastName;
-    row[5] = telephone;
-    row[6] = telephone2;
-    row[7] = salutation;
-    row[9] = fax;
-    row[15] = street;
-    row[16] = suburb;
-    row[17] = city;
-    row[18] = state;
-    row[19] = postcode;
-    row[20] = country;
-    row[26] = website;
+    row[0] = code; // Code
+    row[1] = email; // Email address
+    row[2] = company; // Company
+    row[3] = firstName; // First name
+    row[4] = lastName; // Last name
+    row[5] = telephone; // Telephone
+    row[6] = telephone2; // Telephone 2
+    row[7] = salutation; // Salutation
+    row[8] = ''; // Mobile
+    row[9] = fax; // Fax
+    row[10] = ''; // Bank account
+    row[11] = ''; // Bank sort
+    row[12] = ''; // Bank name
+    row[13] = ''; // Swift code
+    row[14] = ''; // IBAN
+    row[15] = street; // Street
+    row[16] = suburb; // Suburb
+    row[17] = city; // City
+    row[18] = state; // State
+    row[19] = postcode; // Postcode
+    row[20] = country; // Country
+    row[21] = ''; // Title
+    row[22] = ''; // Status
+    row[23] = ''; // Memo
+    row[24] = ''; // Note text
+    row[25] = ''; // Note date
+    row[26] = website; // Website
+    row[27] = ''; // Owner,
+    row[28] = ''; // Email 2,
+    row[29] = ''; // Newsletter,
+    row[30] = ''; // Nominal code,
+    row[31] = taxCode; // Tax code,
+    row[32] = ''; // Credit limit,
+    row[33] = ''; // Credit days
 
     var s = row.join(',');
 

@@ -1,9 +1,9 @@
 {
   "brightpearl": {
-    "datacentre": "???",
-    "accountId": "???",
-    "private-app-ref": "???",
-    "private-account-token": "???"
+    "datacentre": "eu1",
+    "accountId": "nicolascompany",
+    "private-app-ref": "nicolascompany_importer",
+    "private-account-token": "m5K9gnlJoQuX6DLavZl9EKbnLd7hviuriljnlqV1dg4="
   },
   "columns": {
     "Code": "contact.assignment.current.accountCode",

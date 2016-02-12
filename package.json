@@ -1,7 +1,7 @@
 {
-  "name": "BrightpearlContactImporter",
+  "name": "APIContactImporter",
   "version": "1.0.0",
-  "description": "",
+  "description": "Bulk contact importer for uploading from CSV to a Brightpearl account",
   "main": "index.js",
   "scripts": {
     "generate": "node generate.js",

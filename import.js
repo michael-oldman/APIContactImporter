@@ -1,16 +1,16 @@
 // External imports
-var _ = require('lodash');
-var config = require('config');
-var fs = require('fs');
-var Converter = require('csvtojson').Converter;
-var objectPath = require('object-path');
-var nullPrune = require('null-prune');
-var async = require('async');
-var dataStore = require('data-store');
+var _ = require('lodash'),
+    config = require('config'),
+    fs = require('fs'),
+    Converter = require('csvtojson').Converter,
+    objectPath = require('object-path'),
+    nullPrune = require('null-prune'),
+    async = require('async'),
+    dataStore = require('data-store');
 
 // Internal imports
-var Contact = require('./lib/domain/contact');
-var Address = require('./lib/domain/postal-address');
+var Contact = require('./lib/domain/contact'),
+    Address = require('./lib/domain/postal-address');
 
 var push = false;
 
@@ -18,39 +18,39 @@ if (process.argv[2] == 'push') {
     push = true;
 }
 
-var datacentre = config.get('brightpearl.datacentre');
-var accountId = config.get('brightpearl.accountId');
-var appRef = config.get('brightpearl.private-app-ref');
-var token = config.get('brightpearl.private-account-token');
+var datacentre = config.get('brightpearl.datacentre'),
+    accountId = config.get('brightpearl.accountId'),
+    appRef = config.get('brightpearl.private-app-ref'),
+    token = config.get('brightpearl.private-account-token');
 
-var brightpearl = require('./lib/brightpearl')(datacentre, accountId, appRef, token);
-var multimessage = require('./lib/multimessage')(brightpearl);
-var store = dataStore('store');
+var brightpearl = require('./lib/brightpearl')(datacentre, accountId, appRef, token),
+    multimessage = require('./lib/multimessage')(brightpearl),
+    store = dataStore('store');
 
-var count = 0;
-var complete = 0;
-var filesOpen = 0;
+var count = complete = sucesses = filesOpen = 0;
 
-brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, statusCode, taxCodes){
+brightpearl.call('GET', '/accounting-service/tax-code', null, (err, statusCode, taxCodes) => {
 
     if (err) {
         console.error('Unable to fetch tax codes, check connection config');
         process.exit(1);
     }
 
+    console.log(taxCodes.length + ' tax codes found');
     var taxCodeMap = {};
 
-    _.each(taxCodes, function(taxCode){
+    _.each(taxCodes, (taxCode) => {
         taxCodeMap[taxCode.id] = taxCode.id;
         taxCodeMap[taxCode.code] = taxCode.id;
     });
 
     var files = fs.readdirSync('spreadsheets');
 
-    files.forEach(function(file) {
+    files.forEach((file) =>
+    {
         console.log('Processing: ' + file);
 
-        var rs = fs.createReadStream('spreadsheets\\' + file);
+        var rs = fs.createReadStream('spreadsheets/' + file);
         filesOpen++;
 
         var csvConverter = new Converter({
@@ -58,33 +58,29 @@ brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
             ignoreEmpty: true
         });
 
-        var q = async.queue(function(row, done){
-            processRow(row, function(success){
+        var q = async.queue((row, done) => {
+            processRow(row, (success) => {
+
                 complete++;
+                if (success) {
+                    sucesses++;
+                }
+
                 if (filesOpen == 0 && count == complete) {
+                    console.log(complete + " contacts processed " + sucesses + " successful " + (complete - sucesses) + " failures");
                     multimessage.close();
                 }
                 done();
             });
         }, 10);
 
-        q.saturated = function() {
-            rs.pause();
-        };
+        q.saturated = () => rs.pause();
+        q.empty = () => rs.resume();
 
-        q.empty = function() {
-            rs.resume();
-        };
-
-        csvConverter.transform = function(json) {
-            q.push(json);
-        };
+        csvConverter.transform = (json) => q.push(json);
 
         rs.pipe(csvConverter);
-
-        rs.on('end', function(){
-            filesOpen--;
-        });
+        rs.on('end', () => filesOpen--);
     });
 
     function processRow(row, callback) {
@@ -92,7 +88,7 @@ brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
         var log = ++count;
         var valid = true;
 
-        _.keys(row).forEach(function(key) {
+        _.keys(row).forEach((key) => {
             if (!_.contains(_.keys(config.get('columns')), key)){
                 log += " Column mismatch! " + key + " not configured";
                 valid = true;
@@ -109,7 +105,7 @@ brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
             "contact": Contact()
         };
 
-        _.each(_.pairs(config.get('columns')), function (columnPath) {
+        _.each(_.pairs(config.get('columns')), (columnPath) => {
             if (columnPath[1] && row[columnPath[0]] != null) {
                 objectPath.set(resources, columnPath[1], row[columnPath[0]]);
             }
@@ -139,7 +135,7 @@ brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
 
         log += " importing " + contactRef + " ";
 
-        multimessage.call('POST', '/contact-service/postal-address/', nullPrune(resources.address), function(err, statusCode, id) {
+        multimessage.call('POST', '/contact-service/postal-address/', nullPrune(resources.address), (err, statusCode, id) => {
             if (err) {
                 log += "Address error: " + JSON.stringify(err);
                 console.error(log);
@@ -155,7 +151,7 @@ brightpearl.call('GET', '/accounting-service/tax-code', null, function(err, stat
 
             resources.contact = nullPrune(resources.contact);
 
-            multimessage.call('POST', '/contact-service/contact/', nullPrune(resources.contact), function(err, statusCode, id) {
+            multimessage.call('POST', '/contact-service/contact/', nullPrune(resources.contact), (err, statusCode, id) => {
                 if (err) {
                     log += "Contact error: " + JSON.stringify(err);
                     console.error(log);
