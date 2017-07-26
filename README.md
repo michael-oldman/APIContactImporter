@@ -6,7 +6,12 @@ per minute.
 In addition to the usual validation performed by the Brightpearl API each contact MUST have a unique accountCode. Even 
 though accountCode cannot be inserted via the API it is still needed to avoid duplicate uploads.
 
-This is an NPM app tested only on Windows.
+This is an NPM (Node) app tested only on Windows.
+
+Node setup:
+
++ https://docs.npmjs.com/getting-started/installing-node
++ From within the app's directory run 'npm install'
 
 Setup:
 
