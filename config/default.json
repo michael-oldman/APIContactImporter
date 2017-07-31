@@ -14,7 +14,7 @@
     "Telephone": "contact.communication.telephones.PRI",
     "Telephone 2": "contact.communication.telephones.SEC",
     "Salutation": "contact.salutation",
-    "Mobile": "contact.communication.telephones.TER",
+    "Mobile": "contact.communication.telephones.MOB",
     "Fax": null,
     "Bank account": null,
     "Bank sort": null,
